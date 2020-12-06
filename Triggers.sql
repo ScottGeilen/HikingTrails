@@ -14,8 +14,8 @@ DELIMITER ;
 
 DROP TRIGGER IF EXISTS updateTrailRatingLog;
 DELIMITER $$ 
-	CREATE TRIGGER updateTrailRatingLog BEFORE UPDATE ON trailInfo FOR EACH ROW BEGIN 
-    IF NEW.trailRating BETWEEN 0.0 AND 5.0 THEN INSERT INTO changes_for_rating (trailID, beforeRating, afterRating, changedAt) VALUES (OLD.trailID, OLD.trailRating, NEW.trailRating, NOW());
+	CREATE TRIGGER updateTrailRatingLog AFTER UPDATE ON trailInfo FOR EACH ROW BEGIN 
+    IF NEW.trailRating BETWEEN 0.0 AND 5.0 THEN INSERT INTO changes_for_rating (trailID, beforeRating, afterRating, changedAt) VALUES (NEW.trailID, OLD.trailRating, NEW.trailRating, NOW());
     END IF; 
     END$$ 
 DELIMITER ;
@@ -26,7 +26,7 @@ DELIMITER $$
 	CREATE TRIGGER insertTrailState AFTER INSERT ON trails FOR EACH ROW BEGIN 
     DECLARE errorInsertTrailState VARCHAR(255); 
     SET errorInsertTrailState = CONCAT('The inserted U.S. state ', NEW.trailState, ' needs to be a valid U.S. state.');
-    IF NEW.trailState NOT IN('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming')
+    IF NEW.trailState NOT IN('Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming')
 		THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errorInsertTrailState; 
     END IF; 
     END$$ 

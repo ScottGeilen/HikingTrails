@@ -19,7 +19,8 @@ BEGIN
 				ELT(0.5 + RAND() * 5, 'National ','Salmon ','Bear ','Garden ','Cumberland '),
 				ELT(0.5 + RAND() * 5, 'Historical ','Nature ','Technology ','Historic ',''),
 				ELT(0.5 + RAND() * 7, 'Foothills','Reserve','Park','Forest','Woodlands','Wilderness','Recreation Area')
-			));
+			)
+		);
 		INSERT INTO trailDetails (trailDurationMin, trailElevationFt, trailLengthMi) VALUES (
 			(RAND() * (500-20+1)+20), 
             (RAND() * (9000-150+1)+150), 
@@ -28,7 +29,7 @@ BEGIN
 		INSERT INTO trailInfo (trailDifficulty, trailType, trailRating) VALUES (
 			ELT(0.5 + RAND() * 3, 'Easy','Intermediate','Advanced'), 
 			ELT(0.5 + RAND() * 3, 'Loop','Out and back','Point to point'), 
-            ROUND(RAND() * (50.0-1.50+1)+1.5)
+            ROUND(RAND() * (5.0 - 1.5) + 1.5, 1)
 		);
 		UPDATE trailInfo SET trailRating = ROUND(RAND() * (5-0+1)+0) WHERE trailID = (RAND() * (600-1+1)+1);
 		UPDATE trailInfo SET trailRating = ROUND(RAND() * (5-0+1)+0) WHERE trailID = (RAND() * (600-1+1)+1);
@@ -42,3 +43,23 @@ BEGIN
 END$$ 
 DELIMITER ;
 CALL testingBatch();
+
+DROP PROCEDURE IF EXISTS updateRatingsBatch; 
+DELIMITER $$ 
+CREATE PROCEDURE updateRatingsBatch() 
+BEGIN 
+	DECLARE Counter INT;
+    SET Counter=1;
+    WHILE (Counter < 99) DO
+		UPDATE trailInfo SET trailRating = ROUND(RAND() * (5.0 - 1.5 + 1) + 1.5, 1) WHERE trailID = (RAND() * (1000-1+1)+1);
+		UPDATE trailInfo SET trailRating = ROUND(RAND() * (5.0 - 1.5 + 1) + 1.5, 1) WHERE trailID = (RAND() * (1000-1+1)+1);
+		UPDATE trailInfo SET trailRating = ROUND(RAND() * (5.0 - 1.5 + 1) + 1.5, 1) WHERE trailID = (RAND() * (1000-1+1)+1);        
+        SET Counter = Counter+1;
+    END WHILE;
+END$$ 
+DELIMITER ;
+CALL updateRatingsBatch();
+
+#Error Code: 1452. Cannot add or update a child row: a foreign key constraint fails 
+#(`hike`.`trailinfo`, CONSTRAINT `trailinfo_ibfk_1` FOREIGN KEY (`trailID`) REFERENCES `trails` (`trailID`))
+
